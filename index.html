@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Menu Planner</title>
+    <style>
+        @page {
+            size: letter;
+            margin: 0;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .controls {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .control-label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .control-button {
+            padding: 10px 20px;
+            font-size: 16pt;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .background-controls {
+            display: flex;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .color-picker {
+            margin-right: 15px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .menu-items-control {
+            display: flex;
+            align-items: center;
+        }
+        
+        .menu-items-display {
+            margin: 0 10px;
+            font-weight: bold;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .quantity-btn {
+            padding: 5px 10px;
+            background-color: #ddd;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        /* Container for the entire menu with added margin at bottom */
+        .menu-container-wrapper {
+            margin-bottom: 50px; /* Adds space at the bottom */
+        }
+        
+        .menu-container {
+            width: 8.5in;
+            height: 11in;
+            position: relative;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            overflow: hidden;
+            padding: 0.5in;
+            box-sizing: border-box;
+        }
+        
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .menu-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .title-container {
+            display: inline-block;
+            margin: 0 auto;
+            text-align: center;
+            background-color: white;
+            padding: 10px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 90%;
+        }
+        
+        .menu-title {
+            font-size: 36pt;
+            color: #333;
+            margin: 0;
+            display: inline-block;
+            min-width: 200px;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-auto-rows: auto;
+            gap: 20px;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border-radius: 10px;
+            padding: 10px;
+            border: 2px solid #ddd;
+        }
+        
+        .checkbox-container {
+            width: 35pt;
+            height: 35pt;
+            margin-right: 10px;
+        }
+        
+        .menu-checkbox {
+            width: 35pt;
+            height: 35pt;
+            border: 2px solid #333;
+            background-color: white;
+            cursor: pointer;
+        }
+        
+        .menu-image-container {
+            width: 85pt;
+            height: 85pt;
+            margin-right: 10px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        
+        .menu-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+        
+        .menu-text {
+            font-size: 18pt;
+            font-weight: bold;
+            width: 90pt;
+            min-height: 24pt;
+            border: none;
+            background: transparent;
+            outline: none;
+            cursor: text;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+        
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            
+            body * {
+                visibility: hidden;
+            }
+            
+            .menu-container, .menu-container * {
+                visibility: visible;
+            }
+            
+            .menu-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 8.5in;
+                height: 11in;
+                box-shadow: none;
+                margin: 0;
+                padding: 0.5in;
+                overflow: visible;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .background {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .controls {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <div class="background-controls">
+            <div class="control-group">
+                <span class="control-label">Background: </span>
+                <input type="color" id="background-color" class="color-picker" value="#f9f9f9">
+            </div>
+            
+            <div class="control-group">
+                <span class="control-label">Stripe Color: </span>
+                <input type="color" id="stripe-color" class="color-picker" value="#e0e0e0">
+            </div>
+            
+            <div class="control-group">
+                <span class="control-label">Stripe Width: </span>
+                <input type="range" id="stripe-width" min="10" max="50" value="20">
+            </div>
+            
+            <div class="control-group">
+                <span class="control-label">Font Size: </span>
+                <input type="range" id="font-size" min="14" max="28" value="18">
+            </div>
+        </div>
+        
+        <div class="menu-items-control">
+            <span class="control-label">Menu Items: </span>
+            <button id="decrease-items" class="quantity-btn">-</button>
+            <div id="menu-items-display" class="menu-items-display">10</div>
+            <button id="increase-items" class="quantity-btn">+</button>
+        </div>
+        
+        <button class="control-button" id="print-btn">Print Menu</button>
+        <input type="file" id="image-upload" class="file-input" accept="image/*" multiple>
+    </div>
+    
+    <!-- Added wrapper div for bottom spacing -->
+    <div class="menu-container-wrapper">
+        <div class="menu-container">
+            <div class="background" id="background"></div>
+            
+            <div class="menu-content">
+                <div class="title-container" id="title-container">
+                    <h1 class="menu-title" contenteditable="true" id="menu-title">My Menu</h1>
+                </div>
+                
+                <div class="menu-grid" id="menu-grid">
+                    <!-- Menu items will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Custom food items using the provided images
+        const sampleFoods = [
+            { name: 'Apple', image: 'images/Apple.webp' },
+            { name: 'Bacon', image: 'images/Bacon.webp' },
+            { name: 'Bagel & Cream Cheese', image: 'images/Bagel+Cream_Cheese.webp' },
+            { name: 'Banana', image: 'images/Banana.webp' },
+            { name: 'Berries', image: 'images/Berries.webp' },
+            { name: 'Blackberries', image: 'images/Blackberries.webp' },
+            { name: 'Blueberries', image: 'images/Blueberries.webp' },
+            { name: 'Cereal', image: 'images/Cereal.webp' },
+            { name: 'Hard-Boiled Egg', image: 'images/Hard-Boiled_Egg.webp' },
+            { name: 'Oatmeal', image: 'images/Oatmeal.webp' },
+            { name: 'Omelet', image: 'images/Omelet_Egg.webp' },
+            { name: 'Oranges', image: 'images/Oranges.webp' },
+            { name: 'Over-Easy Egg', image: 'images/Over-Easy_Egg.webp' },
+            { name: 'Over-Medium Egg', image: 'images/Over-Medium_Egg.webp' },
+            { name: 'Pancakes', image: 'images/Pancakes.webp' },
+            { name: 'Poached Egg', image: 'images/Poached_Egg.webp' },
+            { name: 'Raspberries', image: 'images/Raspberries.webp' },
+            { name: 'Scrambled Egg', image: 'images/Scrambled_Egg.webp' },
+            { name: 'Soft-Boiled Egg', image: 'images/Soft-Boiled_Egg.webp' },
+            { name: 'Strawberries', image: 'images/Strawberies.webp' },
+            { name: 'Sunny-Side-Up Egg', image: 'images/Sunny-Side-Up_Egg.webp' },
+            { name: 'Toast', image: 'images/Toast.webp' },
+            { name: 'Waffles', image: 'images/Waffels.webp' },
+            { name: 'Yogurt', image: 'images/Yogurt.webp' }
+        ];
+        
+        // Custom uploaded images
+        const customImages = [];
+        
+        // Current number of menu items (default 10)
+        let numMenuItems = 10;
+        
+        // Current font size for menu items (default 18pt)
+        let menuFontSize = 18;
+        
+        // Initialize the menu
+        function initMenu() {
+            const menuGrid = document.getElementById('menu-grid');
+            menuGrid.innerHTML = '';
+            
+            // Create menu items (up to 10)
+            for (let i = 0; i < numMenuItems; i++) {
+                const foodItem = sampleFoods[i % sampleFoods.length];
+                
+                const menuItem = document.createElement('div');
+                menuItem.className = 'menu-item';
+                menuItem.dataset.index = i;
+                
+                // Checkbox
+                const checkboxContainer = document.createElement('div');
+                checkboxContainer.className = 'checkbox-container';
+                const checkbox = document.createElement('div');
+                checkbox.className = 'menu-checkbox';
+                checkboxContainer.appendChild(checkbox);
+                
+                // Image
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'menu-image-container';
+                imageContainer.dataset.foodIndex = i % sampleFoods.length;
+                
+                const image = document.createElement('img');
+                image.className = 'menu-image';
+                image.src = foodItem.image;
+                image.alt = foodItem.name;
+                
+                imageContainer.appendChild(image);
+                
+                // Text
+                const text = document.createElement('div');
+                text.className = 'menu-text';
+                text.contentEditable = true;
+                text.textContent = foodItem.name;
+                text.style.fontSize = menuFontSize + 'pt';
+                
+                // Add all elements to the menu item
+                menuItem.appendChild(checkboxContainer);
+                menuItem.appendChild(imageContainer);
+                menuItem.appendChild(text);
+                
+                // Add menu item to the grid
+                menuGrid.appendChild(menuItem);
+                
+                // Event handler for image cycling
+                imageContainer.addEventListener('click', function() {
+                    const currentIndex = parseInt(this.dataset.foodIndex);
+                    const nextIndex = (currentIndex + 1) % sampleFoods.length;
+                    this.dataset.foodIndex = nextIndex;
+                    
+                    const img = this.querySelector('img');
+                    img.src = sampleFoods[nextIndex].image;
+                    img.alt = sampleFoods[nextIndex].name;
+                    
+                    const textElement = this.nextElementSibling;
+                    textElement.textContent = sampleFoods[nextIndex].name;
+                });
+                
+                // Double click to upload custom image
+                imageContainer.addEventListener('dblclick', function() {
+                    document.getElementById('image-upload').click();
+                    document.getElementById('image-upload').dataset.targetItem = i;
+                });
+            }
+        }
+        
+        // Initialize the background
+        function initBackground() {
+            updateBackground();
+            
+            // Event listeners for background controls
+            document.getElementById('background-color').addEventListener('input', updateBackground);
+            document.getElementById('stripe-color').addEventListener('input', updateBackground);
+            document.getElementById('stripe-width').addEventListener('input', updateBackground);
+        }
+        
+        // Update the background based on current settings
+        function updateBackground() {
+            const backgroundColor = document.getElementById('background-color').value;
+            const stripeColor = document.getElementById('stripe-color').value;
+            const stripeWidth = document.getElementById('stripe-width').value;
+            
+            const background = document.getElementById('background');
+            
+            // Create repeating 45-degree stripes that span the entire page
+            background.style.backgroundImage = `repeating-linear-gradient(
+                45deg,
+                ${backgroundColor},
+                ${backgroundColor} ${stripeWidth}px,
+                ${stripeColor} ${stripeWidth}px,
+                ${stripeColor} ${parseInt(stripeWidth) * 2}px
+            )`;
+            
+            // Make sure the background size is large enough
+            background.style.backgroundSize = 'auto';
+        }
+        
+        // Initialize menu items control
+        function initMenuItemsControl() {
+            const decreaseBtn = document.getElementById('decrease-items');
+            const increaseBtn = document.getElementById('increase-items');
+            const display = document.getElementById('menu-items-display');
+            
+            decreaseBtn.addEventListener('click', function() {
+                if (numMenuItems > 1) {
+                    numMenuItems--;
+                    display.textContent = numMenuItems;
+                    initMenu();
+                }
+            });
+            
+            increaseBtn.addEventListener('click', function() {
+                if (numMenuItems < 10) {
+                    numMenuItems++;
+                    display.textContent = numMenuItems;
+                    initMenu();
+                }
+            });
+        }
+        
+        // Initialize font size control
+        function initFontSizeControl() {
+            const fontSizeSlider = document.getElementById('font-size');
+            
+            fontSizeSlider.addEventListener('input', function() {
+                menuFontSize = parseInt(this.value);
+                updateMenuFontSize();
+            });
+        }
+        
+        // Update font size for all menu items
+        function updateMenuFontSize() {
+            const menuTexts = document.querySelectorAll('.menu-text');
+            menuTexts.forEach(text => {
+                text.style.fontSize = menuFontSize + 'pt';
+            });
+        }
+        
+        // Handle image uploads
+        function handleImageUpload() {
+            const fileInput = document.getElementById('image-upload');
+            
+            fileInput.addEventListener('change', function(e) {
+                const files = e.target.files;
+                if (!files.length) return;
+                
+                const targetItemIndex = parseInt(this.dataset.targetItem);
+                const menuItems = document.querySelectorAll('.menu-item');
+                const targetItem = menuItems[targetItemIndex];
+                
+                if (!targetItem) return;
+                
+                const imageContainer = targetItem.querySelector('.menu-image-container');
+                const image = imageContainer.querySelector('img');
+                
+                const file = files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    image.src = e.target.result;
+                    
+                    // Store this custom image
+                    customImages.push({
+                        name: file.name.split('.')[0],
+                        image: e.target.result
+                    });
+                    
+                    // Update the text if needed
+                    const textElement = imageContainer.nextElementSibling;
+                    if (textElement.textContent === sampleFoods[parseInt(imageContainer.dataset.foodIndex)].name) {
+                        textElement.textContent = file.name.split('.')[0];
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // Make title container expand with text
+        function initExpandableTitle() {
+            const titleElement = document.getElementById('menu-title');
+            const titleContainer = document.getElementById('title-container');
+            
+            // Listen for input events on the title
+            titleElement.addEventListener('input', function() {
+                // The container will naturally expand with the content
+                // due to the CSS we've set up
+            });
+        }
+        
+        // Check for image loading errors and handle them
+        function handleImageErrors() {
+            window.addEventListener('error', function(e) {
+                const target = e.target;
+                // Check if the error was from an image
+                if (target.tagName === 'IMG') {
+                    console.log('Image failed to load: ' + target.src);
+                    // Set a fallback image
+                    target.src = '/api/placeholder/85/85';
+                    // Prevent the error from showing in console
+                    e.preventDefault();
+                }
+            }, true);
+        }
+        
+        // Print functionality
+        function initPrintButton() {
+            document.getElementById('print-btn').addEventListener('click', function() {
+                window.print();
+            });
+        }
+        
+        // Initialize everything when the page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            handleImageErrors();
+            initMenu();
+            initBackground();
+            initMenuItemsControl();
+            initFontSizeControl();
+            handleImageUpload();
+            initExpandableTitle();
+            initPrintButton();
+        });
+    </script>
+</body>
+</html>
