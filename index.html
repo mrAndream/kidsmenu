@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kids Menu Planner</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <style>
         @page {
             size: letter;
@@ -13,49 +14,92 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
         }
         
+        /* Responsive controls */
         .controls {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
             background-color: #f0f0f0;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            gap: 15px;
         }
+        
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+        }
+	@media (min-width: 769px) {
+    .controls {
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .control-row {
+        width: auto;
+        flex: 1;
+        margin-right: 10px;
+    }
+}
         
         .control-label {
             margin-right: 10px;
             font-weight: bold;
+            white-space: nowrap;
         }
         
         .control-button {
             padding: 10px 20px;
-            font-size: 16pt;
+            font-size: 16px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             margin: 5px;
+            width: 100%;
+            max-width: 200px;
         }
         
+        /* Add this media query for mobile devices */
+@media (max-width: 768px) {
+    .control-button#print-btn {
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    
+    /* This helps ensure the button is truly centered in its row */
+    .control-row:last-child {
+        justify-content: center;
+    }
+}
+
         .background-controls {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
+            gap: 10px;
         }
         
         .control-group {
             display: flex;
             align-items: center;
-            margin-right: 20px;
+            flex-wrap: wrap;
+            flex: 1;
+            min-width: 200px;
         }
         
         .color-picker {
-            margin-right: 15px;
+            margin-right: 5px;
         }
         
         .file-input {
@@ -65,6 +109,7 @@
         .menu-items-control {
             display: flex;
             align-items: center;
+            justify-content: center;
         }
         
         .menu-items-display {
@@ -82,9 +127,11 @@
             cursor: pointer;
         }
         
-        /* Container for the entire menu with added margin at bottom */
+        /* Responsive menu container */
         .menu-container-wrapper {
-            margin-bottom: 50px; /* Adds space at the bottom */
+            margin-bottom: 50px;
+            width: 100%;
+            overflow-x: auto;
         }
         
         .menu-container {
@@ -97,6 +144,7 @@
             overflow: hidden;
             padding: 0.5in;
             box-sizing: border-box;
+            transform-origin: top left;
         }
         
         .background {
@@ -197,6 +245,37 @@
             word-break: break-word;
         }
         
+        /* Responsive slider styling */
+        input[type="range"] {
+            width: 100%;
+            max-width: 150px;
+        }
+        
+        /* Helper text for mobile users */
+        .mobile-helper {
+            display: none;
+            text-align: center;
+            margin-bottom: 10px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        /* Media queries for responsive design */
+        @media (max-width: 768px) {
+            .control-group {
+                margin-bottom: 10px;
+                width: 100%;
+            }
+            
+            .control-button {
+                width: 100%;
+            }
+            
+            .mobile-helper {
+                display: block;
+            }
+        }
+        
         @media print {
             body {
                 margin: 0;
@@ -223,6 +302,7 @@
                 overflow: visible;
                 print-color-adjust: exact;
                 -webkit-print-color-adjust: exact;
+                transform: none !important;
             }
             
             .background {
@@ -230,7 +310,7 @@
                 print-color-adjust: exact;
             }
             
-            .controls {
+            .controls, .mobile-helper {
                 display: none !important;
             }
         }
@@ -238,7 +318,7 @@
 </head>
 <body>
     <div class="controls">
-        <div class="background-controls">
+        <div class="control-row">
             <div class="control-group">
                 <span class="control-label">Background: </span>
                 <input type="color" id="background-color" class="color-picker" value="#f9f9f9">
@@ -248,7 +328,9 @@
                 <span class="control-label">Stripe Color: </span>
                 <input type="color" id="stripe-color" class="color-picker" value="#e0e0e0">
             </div>
-            
+        </div>
+        
+        <div class="control-row">
             <div class="control-group">
                 <span class="control-label">Stripe Width: </span>
                 <input type="range" id="stripe-width" min="10" max="50" value="20">
@@ -256,24 +338,30 @@
             
             <div class="control-group">
                 <span class="control-label">Font Size: </span>
-                <input type="range" id="font-size" min="14" max="28" value="18">
+                <input type="range" id="font-size" min="10" max="24" value="18">
             </div>
         </div>
         
-        <div class="menu-items-control">
-            <span class="control-label">Menu Items: </span>
-            <button id="decrease-items" class="quantity-btn">-</button>
-            <div id="menu-items-display" class="menu-items-display">10</div>
-            <button id="increase-items" class="quantity-btn">+</button>
+        <div class="control-row">
+            <div class="menu-items-control">
+                <span class="control-label">Menu Items: </span>
+                <button id="decrease-items" class="quantity-btn">-</button>
+                <div id="menu-items-display" class="menu-items-display">10</div>
+                <button id="increase-items" class="quantity-btn">+</button>
+            </div>
+            
+            <button class="control-button" id="print-btn">Print a Menu</button>
+            <input type="file" id="image-upload" class="file-input" accept="image/*" multiple>
         </div>
-        
-        <button class="control-button" id="print-btn">Print Menu</button>
-        <input type="file" id="image-upload" class="file-input" accept="image/*" multiple>
+    </div>
+    
+    <div class="mobile-helper">
+        You can pinch to zoom and pan around the menu. Double-tap images to upload custom ones.
     </div>
     
     <!-- Added wrapper div for bottom spacing -->
     <div class="menu-container-wrapper">
-        <div class="menu-container">
+        <div class="menu-container" id="menu-container">
             <div class="background" id="background"></div>
             
             <div class="menu-content">
@@ -324,16 +412,40 @@
         let numMenuItems = 10;
         
         // Current font size for menu items (default 18pt)
-        let menuFontSize = 18;
+        let menuFontSize = 14;
+        
+        // Array to store the state of each menu item
+        let menuItemsState = [];
         
         // Initialize the menu
         function initMenu() {
             const menuGrid = document.getElementById('menu-grid');
+            
+            // If menuItemsState is empty, initialize it with default values
+            if (menuItemsState.length === 0) {
+                for (let i = 0; i < 10; i++) {
+                    const foodItem = sampleFoods[i % sampleFoods.length];
+                    menuItemsState.push({
+                        foodIndex: i % sampleFoods.length,
+                        imageSrc: foodItem.image,
+                        text: foodItem.name,
+                        isCustomImage: false
+                    });
+                }
+            }
+            
+            // Clear the grid
             menuGrid.innerHTML = '';
             
-            // Create menu items (up to 10)
+            // Create menu items
             for (let i = 0; i < numMenuItems; i++) {
-                const foodItem = sampleFoods[i % sampleFoods.length];
+                // Get the state for this item, or use default if it doesn't exist
+                const itemState = menuItemsState[i] || {
+                    foodIndex: i % sampleFoods.length,
+                    imageSrc: sampleFoods[i % sampleFoods.length].image,
+                    text: sampleFoods[i % sampleFoods.length].name,
+                    isCustomImage: false
+                };
                 
                 const menuItem = document.createElement('div');
                 menuItem.className = 'menu-item';
@@ -349,12 +461,12 @@
                 // Image
                 const imageContainer = document.createElement('div');
                 imageContainer.className = 'menu-image-container';
-                imageContainer.dataset.foodIndex = i % sampleFoods.length;
+                imageContainer.dataset.foodIndex = itemState.foodIndex;
                 
                 const image = document.createElement('img');
                 image.className = 'menu-image';
-                image.src = foodItem.image;
-                image.alt = foodItem.name;
+                image.src = itemState.imageSrc;
+                image.alt = itemState.text;
                 
                 imageContainer.appendChild(image);
                 
@@ -362,7 +474,7 @@
                 const text = document.createElement('div');
                 text.className = 'menu-text';
                 text.contentEditable = true;
-                text.textContent = foodItem.name;
+                text.textContent = itemState.text;
                 text.style.fontSize = menuFontSize + 'pt';
                 
                 // Add all elements to the menu item
@@ -375,22 +487,37 @@
                 
                 // Event handler for image cycling
                 imageContainer.addEventListener('click', function() {
-                    const currentIndex = parseInt(this.dataset.foodIndex);
-                    const nextIndex = (currentIndex + 1) % sampleFoods.length;
-                    this.dataset.foodIndex = nextIndex;
+                    const itemIndex = parseInt(menuItem.dataset.index);
+                    const currentFoodIndex = parseInt(this.dataset.foodIndex);
+                    const nextFoodIndex = (currentFoodIndex + 1) % sampleFoods.length;
+                    this.dataset.foodIndex = nextFoodIndex;
                     
                     const img = this.querySelector('img');
-                    img.src = sampleFoods[nextIndex].image;
-                    img.alt = sampleFoods[nextIndex].name;
+                    img.src = sampleFoods[nextFoodIndex].image;
+                    img.alt = sampleFoods[nextFoodIndex].name;
                     
                     const textElement = this.nextElementSibling;
-                    textElement.textContent = sampleFoods[nextIndex].name;
+                    textElement.textContent = sampleFoods[nextFoodIndex].name;
+                    
+                    // Update the state
+                    menuItemsState[itemIndex] = {
+                        foodIndex: nextFoodIndex,
+                        imageSrc: sampleFoods[nextFoodIndex].image,
+                        text: sampleFoods[nextFoodIndex].name,
+                        isCustomImage: false
+                    };
+                });
+                
+                // Event handler for text changes
+                text.addEventListener('input', function() {
+                    const itemIndex = parseInt(menuItem.dataset.index);
+                    menuItemsState[itemIndex].text = this.textContent;
                 });
                 
                 // Double click to upload custom image
                 imageContainer.addEventListener('dblclick', function() {
                     document.getElementById('image-upload').click();
-                    document.getElementById('image-upload').dataset.targetItem = i;
+                    document.getElementById('image-upload').dataset.targetItem = menuItem.dataset.index;
                 });
             }
         }
@@ -501,6 +628,14 @@
                     if (textElement.textContent === sampleFoods[parseInt(imageContainer.dataset.foodIndex)].name) {
                         textElement.textContent = file.name.split('.')[0];
                     }
+                    
+                    // Update the state
+                    menuItemsState[targetItemIndex] = {
+                        foodIndex: parseInt(imageContainer.dataset.foodIndex),
+                        imageSrc: e.target.result,
+                        text: textElement.textContent,
+                        isCustomImage: true
+                    };
                 };
                 
                 reader.readAsDataURL(file);
@@ -541,6 +676,35 @@
             });
         }
         
+        // Scale the menu container to fit the screen width
+        function scaleMenuContainer() {
+            const menuContainer = document.getElementById('menu-container');
+            const wrapper = document.querySelector('.menu-container-wrapper');
+            
+            // Get the available width for the menu (accounting for padding)
+            const availableWidth = wrapper.clientWidth;
+            
+            // Letter size is 8.5in, convert to pixels at 96dpi
+            const letterWidthInPixels = 8.5 * 96;
+            
+            // Calculate scale factor
+            let scale = 1;
+            if (availableWidth < letterWidthInPixels) {
+                scale = availableWidth / letterWidthInPixels;
+            }
+            
+            // Apply scale transform
+            menuContainer.style.transform = `scale(${scale})`;
+            
+            // Adjust wrapper height to match the scaled menu height
+            // Letter height is 11in, convert to pixels and scale
+            const letterHeightInPixels = 11 * 96;
+            wrapper.style.height = `${letterHeightInPixels * scale}px`;
+            
+            // Add margin to account for the title container
+            wrapper.style.marginBottom = '30px';
+        }
+        
         // Initialize everything when the page loads
         window.addEventListener('DOMContentLoaded', function() {
             handleImageErrors();
@@ -551,6 +715,10 @@
             handleImageUpload();
             initExpandableTitle();
             initPrintButton();
+            scaleMenuContainer();
+            
+            // Rescale the menu container whenever the window is resized
+            window.addEventListener('resize', scaleMenuContainer);
         });
     </script>
 </body>
